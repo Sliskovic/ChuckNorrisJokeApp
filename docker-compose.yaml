@@ -1,0 +1,42 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    env_file:
+      - .env
+    environment:
+    - POSTGRES_PASSWORD=postgres
+    - DB_USER=${DB_USER}
+    - DB_PASSWORD=${DB_PASSWORD}
+    - DB_NAME=${DB_NAME}
+    - DB_HOST=${DB_HOST}
+    - DB_PORT=${DB_PORT}
+    volumes:
+    - pgdata:/var/lib/postgresql/data
+    ports:
+    - "5432:5432"
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: server-joke-app
+    environment:
+      - PORT=${APP_PORT}
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+    volumes:
+      - ./src:/app/src
+
+  adminer:
+    image: adminer
+    restart: always
+    container_name: nest-adminer
+    ports:
+    - 8080:8080
+    links:
+    - db
+volumes:
+  pgdata:
+    external: true
